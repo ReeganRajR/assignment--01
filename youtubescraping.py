@@ -389,11 +389,36 @@ if st.button("Proceed"):
         insert=channel_details(channel_id)
         st.success(insert)
 
-if st.button("Move to SQL"):
+if st.button("Move All data to SQL"):
     Table=tables()
     st.success(Table)
 
-show_table=st.radio("PICK THE DATA TO VIEW",("CHANNELS","VIDEOS","COMMENTS","PLAYLISTS"))
+
+mydb=psycopg2.connect(host="localhost",user="postgres",password="1234",database="youtube_data",port="5432")
+cursor=mydb.cursor()
+channel_name=st.text_input("Enter channel Name To Move into SQL")
+
+
+if st.button("MOVE"):
+    ch_list=[]
+    Qu1='''Select channel_name as channelname from channels'''
+    cursor.execute(Qu1)
+    mydb.commit()
+    t1=cursor.fetchall()
+    df36=pd.DataFrame(t1,columns=["channel name"])
+    newlist=df36['channel name']. tolist()
+    ch_list=newlist
+
+    if channel_name in ch_list:
+        st.info("Channel Details of the given channel name Exists",icon="🚨")
+
+    else:
+        insert=tables()
+        st.success(insert)
+
+
+show_table=st.radio("PICK THE DATA TO VIEW",("NONE","CHANNELS","VIDEOS","COMMENTS","PLAYLISTS"))
+
 if show_table=="CHANNELS":
     show_channels_tables()
 elif show_table=="PLAYLISTS":
@@ -406,7 +431,8 @@ elif show_table=="COMMENTS":
 #SQL
 mydb=psycopg2.connect(host="localhost",user="postgres",password="1234",database="youtube_data",port="5432")
 cursor=mydb.cursor()
-Question=st.selectbox("Select your questions",("1.What are the names of all the videos and their corresponding channels?",
+Question=st.selectbox("Select your questions",("0.choose the Questions",
+                                                "1.What are the names of all the videos and their corresponding channels?",
                                                "2.Which channels have the most number of videos, and how many videos dothey have?",
                                                "3.What are the top 10 most viewed videos and their respective channels?",
                                                "4.How many comments were made on each video, and what are theircorresponding video names?",
